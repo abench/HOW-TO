@@ -1,27 +1,44 @@
 import cv2
 
-# List of camera resolutions
-resolutions = [
+# Codec formats
+fourcc_codes = {
+    'MJPG': cv2.VideoWriter_fourcc(*'MJPG'),
+    'YUYV': cv2.VideoWriter_fourcc(*'YUYV'),
+    'H264': cv2.VideoWriter_fourcc(*'H264'),
+}
+
+# Typical resolutions
+rresolutions = [
     (640, 480), (800, 600), (1024, 768), (1280, 720),
     (1280, 1024), (1600, 1200), (1920, 1080), (2560, 1440), (3840, 2160), (5120, 2880)
 ]
 
-cap = cv2.VideoCapture(0)
+# FPS
+fps_list = [15, 30, 60]
 
-supported_resolutions = []
+camera_index = 0
 
-for width, height in resolutions:
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+results = []
 
-    actual_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-    actual_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+for fmt_name, fourcc in fourcc_codes.items():
+    for width, height in resolutions:
+        for fps in fps_list:
+            cap = cv2.VideoCapture(camera_index)
+            cap.set(cv2.CAP_PROP_FOURCC, fourcc)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+            cap.set(cv2.CAP_PROP_FPS, fps)
 
-    if int(actual_width) == width and int(actual_height) == height:
-        supported_resolutions.append((width, height))
+            actual_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+            actual_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+            actual_fps = cap.get(cv2.CAP_PROP_FPS)
 
-cap.release()
+            if int(actual_width) == width and int(actual_height) == height:
+                results.append((fmt_name, width, height, actual_fps))
 
-print("Supported camera resolutions:")
-for res in supported_resolutions:
-    print(f"{res[0]}x{res[1]}")
+            cap.release()
+
+# Infromation output  
+print("Supported formats:")
+for fmt_name, width, height, fps in results:
+    print(f"{fmt_name}: {width}x{height} @ {fps:.2f} FPS")
