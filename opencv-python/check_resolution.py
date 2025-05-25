@@ -23,6 +23,7 @@ results = []
 for fmt_name, fourcc in fourcc_codes.items():
     for width, height in resolutions:
         for fps in fps_list:
+            print(f"Testing format: {fmt_name}, Resolution: {width}x{height}, FPS: {fps}")
             cap = cv2.VideoCapture(camera_index)
             cap.set(cv2.CAP_PROP_FOURCC, fourcc)
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
